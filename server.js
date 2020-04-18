@@ -2,7 +2,6 @@ const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const colors = require('colors');
-const exphbs = require('express-handlebars');
 const errorHandler = require('./app/middleware/error');
 
 // load env vars
@@ -18,10 +17,6 @@ const app = express();
 // Import routes
 const store = require('./app/routes/api/store');
 
-// Enable templating engine
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
-app.set('view engine', 'handlebars');
-
 // Body parser
 app.use(express.json());
 
@@ -30,13 +25,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(express.static(path.join(__dirname, 'public')));
 }
 
-app.get('/', (req, res) => {
-  res.render('index');
-});
-
-app.get('/store', (req, res) => {
-  res.render('store', { layout: 'storeStripe' });
-});
+// app.get('/', (req, res) => {
+//   res.render('index');
+// });
 
 app.use('/api/v1/store', store);
 
