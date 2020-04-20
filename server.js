@@ -3,6 +3,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/dbMongo');
 const errorHandler = require('./app/middleware/error');
 
@@ -28,11 +29,15 @@ if (process.env.NODE_ENV === 'development') {
 
 // Import routes
 const auth = require('./app/routes/api/auth');
+const users = require('./app/routes/api/users');
 const store = require('./app/routes/api/store');
 const posts = require('./app/routes/api/posts');
 
 // Body parser
 app.use(express.json());
+
+// Cookie parser
+app.use(cookieParser());
 
 if (process.env.NODE_ENV === 'development') {
   // Set static folder
@@ -43,6 +48,8 @@ if (process.env.NODE_ENV === 'development') {
 //   res.render('index');
 // });
 
+app.use('/api/v1/auth', auth);
+app.use('/api/v1/users', users);
 app.use('/api/v1/store', store);
 app.use('/api/v1/posts', posts);
 
