@@ -2,8 +2,6 @@ const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
-const session = require('express-session');
-const passport = require('passport');
 const colors = require('colors');
 const connectDB = require('./config/dbMongo');
 const errorHandler = require('./app/middleware/error');
@@ -23,25 +21,13 @@ const app = express();
 // Body parser
 app.use(express.json());
 
-// Express Session
-// app.use(
-//   session({
-//       secret: 'Z-0Dc7sJwgOL}]5',
-//       resave: true,
-//       saveUninitialized: true
-//   })
-// );
-
-// Passport middleware
-// app.use(passport.initialize());
-// app.use(passport.session());
-
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
 // Import routes
+const auth = require('./app/routes/api/auth');
 const store = require('./app/routes/api/store');
 const posts = require('./app/routes/api/posts');
 

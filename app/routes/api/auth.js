@@ -1,15 +1,28 @@
 const express = require('express');
-const { forgotPassword, resetUserPassword } = require('../controllers/auth');
+const {
+  register,
+  login,
+  logout,
+  getMe,
+  forgotPassword,
+  resetPassword,
+  updateDetails,
+  updatePassword,
+} = require('../../controllers/auth');
 
-// Include other resource routers
-// const someRouter = require('./anotherRoute');
+const { protect } = require('../../middleware/auth');
+
+// const advancedResults = require('../../middleware/advancedResults');
 
 const router = express.Router();
 
-// Re-route into other resource routers
-// router.use('/:someId/anotherRoute', anotherRoute);
-
-router.route('/forgotpassword').post(forgotPassword);
-router.route('/resetpassword').post(resetUserPassword);
+router.post('/register', register);
+router.post('/login', login);
+router.get('/logout', logout);
+router.get('/me', protect, getMe);
+router.put('/updatedetails', protect, updateDetails);
+router.put('/updatepassword', protect, updatePassword);
+router.post('/forgotpassword', forgotPassword);
+router.put('/resetpassword/:resettoken', resetPassword);
 
 module.exports = router;
