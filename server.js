@@ -30,6 +30,7 @@ if (process.env.NODE_ENV === 'development') {
 // Import routes
 const auth = require('./app/routes/api/auth');
 const users = require('./app/routes/api/users');
+const comments = require('./app/routes/api/comments');
 const store = require('./app/routes/api/store');
 const posts = require('./app/routes/api/posts');
 
@@ -50,6 +51,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
+app.use('/api/v1/comments', comments);
 app.use('/api/v1/store', store);
 app.use('/api/v1/posts', posts);
 
@@ -58,7 +60,7 @@ app.get('*', (req, res) => {
   res.status(404).json({
     success: false,
     message: 'The routes your are looking for do not exist...',
-    data: { id: 1 },
+    data: {},
   });
 });
 
