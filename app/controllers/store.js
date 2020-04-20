@@ -1,6 +1,7 @@
 const fs = require('fs');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // @desc      Get single customer
 // @route     GET /getCustomer
@@ -60,3 +61,17 @@ exports.getStore = asyncHandler(async (req, res, next) => {
     data: Items,
   });
 });
+
+exports.pubKey = asyncHandler(
+  ('/stripe-key',
+  (req, res, next) => {
+    res.status(200).json({ publishableKey: process.env.STRIPE_PUBLIC_KEY });
+  })
+);
+
+const calculateAmount = () => {
+  // Replace this constant with a calculation of the order's amount
+  // You should always calculate the order total on the server to prevent
+  // people from directly manipulating the amount on the client
+  return 1400;
+};
