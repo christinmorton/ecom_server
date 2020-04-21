@@ -12,7 +12,7 @@ const Post = require('./app/models/Posts');
 const Product = require('./app/models/Product');
 const Comment = require('./app/models/Comment');
 const User = require('./app/models/User');
-// const Review = require('./app/models/Review');
+const Review = require('./app/models/Review');
 
 // Connect to DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -39,7 +39,9 @@ const users = JSON.parse(
   fs.readFileSync(`${__dirname}/_data/users.json`, 'utf-8')
 );
 
-// const reviews = JSON.parse();
+const reviews = JSON.parse(
+  fs.readFileSync(`${__dirname}/_data/reviews.json`, 'utf-8')
+);
 
 // Import into db
 const importData = async () => {
@@ -48,6 +50,7 @@ const importData = async () => {
     await Comment.create(comments);
     await User.create(users);
     await Product.create(products);
+    await Review.create(reviews);
 
     console.log('Data Imported...'.green.inverse);
     process.exit();
@@ -63,6 +66,7 @@ const deletetData = async () => {
     await Comment.deleteMany();
     await User.deleteMany();
     await Product.deleteMany();
+    await Review.deleteMany();
 
     console.log('Data Destroyed...'.red.inverse);
     process.exit();

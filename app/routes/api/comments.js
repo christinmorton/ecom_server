@@ -10,6 +10,8 @@ const {
 const Comment = require('../../models/Comment');
 const advancedResults = require('../../middleware/advancedResults');
 
+const { protect, authorize } = require('../../middleware/auth');
+
 const router = expres.Router({ mergeParams: true });
 
 router
@@ -21,12 +23,12 @@ router
     }),
     getComments
   )
-  .post(createComment);
+  .post(protect, authorize('user', 'admin'), createComment);
 
 router
   .route('/:id')
   .get(getSingleComment)
-  .put(updateComment)
-  .delete(deleteComment);
+  .put(protect, authorize('user', 'admin'), updateComment)
+  .delete(protect, authorize('user', 'admin'), deleteComment);
 
 module.exports = router;

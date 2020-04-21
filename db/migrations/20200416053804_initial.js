@@ -17,6 +17,16 @@ exports.up = async (knex) => {
     table.datetime('last_login');
     addDefaultColumns(table);
   });
+
+  await knex.schema.createTable(tableNames.post, (table) => {
+    table.increments().notNullable();
+    table.string('title', 255).notNullable();
+    table.string('slug', 255);
+    table.string('author', 255);
+    table.text('body', ['longtext']);
+    table.string('summary', 500).notNullable();
+    table.string('quotes', 255);
+  });
 };
 
 exports.down = async (knex) => {
