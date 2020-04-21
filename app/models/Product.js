@@ -14,7 +14,11 @@ const ProductSchema = new mongoose.Schema({
     required: [true, 'Products must have a price'],
   },
   slug: String,
-  allowComments: Boolean,
+  photo: {
+    type: String,
+    default: 'no-photo.jpg',
+  },
+  category: String,
   publish: {
     type: Boolean,
   },

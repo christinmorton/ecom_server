@@ -3,3 +3,6 @@ node_modules/
 config/config.env
 
 server_test.js
+
+public/fonts/
+public/uploads/

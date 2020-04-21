@@ -5,6 +5,7 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
+  productPhotoUpload,
 } = require('../../controllers/products');
 
 const advancedResults = require('../../middleware/advancedResults');
@@ -20,6 +21,9 @@ const router = expres.Router();
 
 // Re-route to other resource routers
 router.use('/:productId/reviews', reviewRouter);
+
+// protect, authorize('publisher', 'admin'),
+router.route('/:id/photo').put(productPhotoUpload);
 
 router
   .route('/')

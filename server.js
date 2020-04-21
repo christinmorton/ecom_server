@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
 const cookieParser = require('cookie-parser');
+const fileupload = require('express-fileupload');
 const connectDB = require('./config/dbMongo');
 const errorHandler = require('./app/middleware/error');
 
@@ -31,8 +32,10 @@ if (process.env.NODE_ENV === 'development') {
 const auth = require('./app/routes/api/auth');
 const users = require('./app/routes/api/users');
 const comments = require('./app/routes/api/comments');
+const reviews = require('./app/routes/api/reviews');
 const store = require('./app/routes/api/store');
 const posts = require('./app/routes/api/posts');
+const products = require('./app/routes/api/products');
 
 // Body parser
 app.use(express.json());
@@ -40,10 +43,11 @@ app.use(express.json());
 // Cookie parser
 app.use(cookieParser());
 
-if (process.env.NODE_ENV === 'development') {
-  // Set static folder
-  app.use(express.static(path.join(__dirname, 'public')));
-}
+// Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// File upload middleware
+app.use(fileupload());
 
 // app.get('/', (req, res) => {
 //   res.render('index');
@@ -52,8 +56,10 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
 app.use('/api/v1/comments', comments);
+app.use('/api/v1/reviews', reviews);
 app.use('/api/v1/store', store);
 app.use('/api/v1/posts', posts);
+app.use('/api/v1/products', products);
 
 // catch route clean up
 app.get('*', (req, res) => {
