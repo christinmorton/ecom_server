@@ -6,6 +6,10 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'failed', 'return-requested', 'successful', 'saved'],
   },
+  closedOn: {
+    type: Date,
+    default: Date.now,
+  },
   createdAt: {
     date: Date,
     default: Date.now,

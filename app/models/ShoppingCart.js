@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 
 let future = new Date();
 
-const ShoppingCartSchema = new mongoose.Schema({
+const ShoppingcartSchema = new mongoose.Schema({
   expireDate: {
-    date: Date,
+    type: Date,
     default: future.setDate(future.getDate() + 30),
   },
   createdAt: {
-    date: Date,
+    type: Date,
     default: Date.now,
   },
   customer: {
@@ -16,7 +16,7 @@ const ShoppingCartSchema = new mongoose.Schema({
     ref: 'Customer',
     required: true,
   },
-  cartItem: [
+  cartItems: [
     {
       type: mongoose.Schema.ObjectId,
       ref: 'CartItem',
@@ -25,4 +25,4 @@ const ShoppingCartSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model('ShoppingCart', ShoppingCartSchema);
+module.exports = mongoose.model('Shoppingcart', ShoppingcartSchema);

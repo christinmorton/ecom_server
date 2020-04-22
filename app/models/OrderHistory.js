@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const OrderHistorySchema = new mongoose.Schema({
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   order: {
     type: mongoose.Schema.ObjectId,
     ref: 'Order',
