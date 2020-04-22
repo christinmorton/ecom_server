@@ -16,13 +16,6 @@ const ShoppingcartSchema = new mongoose.Schema({
     ref: 'Customer',
     required: true,
   },
-  cartItems: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'CartItem',
-      required: true,
-    },
-  ],
 });
 
-module.exports = mongoose.model('Shoppingcart', ShoppingcartSchema);
+module.exports = mongoose.model('ShoppingCart', ShoppingcartSchema);

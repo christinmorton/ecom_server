@@ -8,6 +8,12 @@ const CartItemSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  shoppingCart: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'ShoppingCart',
+    required: true,
+  },
+
   product: {
     type: mongoose.Schema.ObjectId,
     ref: 'Product',

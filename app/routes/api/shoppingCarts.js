@@ -1,5 +1,11 @@
 const expres = require('express');
-const { fillShoppingCart } = require('../../controllers/shoppingCarts');
+const {
+  getShoppingcart,
+  createShoppingCart,
+  createCartItem,
+  updateShoppingcart,
+  deleteShoppingcart,
+} = require('../../controllers/shoppingCarts');
 
 // const advancedResults = require('../../middleware/advancedResults');
 
@@ -15,6 +21,15 @@ const router = expres.Router();
 
 // protect, authorize('publisher', 'admin'),
 
-router.route('/').post(protect, fillShoppingCart);
+router
+  .route('/')
+  .get(protect, getShoppingcart)
+  .post(protect, createShoppingCart);
+
+router
+  .route('/:id')
+  .post(protect, createCartItem)
+  .put(protect, authorize, updateShoppingcart)
+  .delete(protect, authorize, deleteShoppingcart); // Pass a cart item id to the delete request
 
 module.exports = router;
