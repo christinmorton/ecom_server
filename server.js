@@ -35,6 +35,7 @@ const comments = require('./app/routes/api/comments');
 const reviews = require('./app/routes/api/reviews');
 const store = require('./app/routes/api/store');
 const shoppingCart = require('./app/routes/api/shoppingCarts');
+const orders = require('./app/routes/api/orders');
 const posts = require('./app/routes/api/posts');
 const products = require('./app/routes/api/products');
 
@@ -60,6 +61,7 @@ app.use('/api/v1/comments', comments);
 app.use('/api/v1/reviews', reviews);
 app.use('/api/v1/store', store);
 app.use('/api/v1/shoppingcart', shoppingCart);
+app.use('/api/v1/orders', orders);
 app.use('/api/v1/posts', posts);
 app.use('/api/v1/products', products);
 

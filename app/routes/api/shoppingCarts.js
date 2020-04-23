@@ -1,9 +1,12 @@
 const expres = require('express');
 const {
   getShoppingcart,
+  getCartItems,
+  getSingleCartItem,
   createShoppingCart,
   createCartItem,
-  updateShoppingcart,
+  updateCartItem,
+  deleteCartItem,
   deleteShoppingcart,
 } = require('../../controllers/shoppingCarts');
 
@@ -11,13 +14,7 @@ const {
 
 const { protect, authorize } = require('../../middleware/auth');
 
-// Include other resource routers
-// const reviewRouter = require('./reviews');
-
 const router = expres.Router();
-
-// Re-route to other resource routers
-// router.use('/:productId/reviews', reviewRouter);
 
 // protect, authorize('publisher', 'admin'),
 
@@ -26,10 +23,17 @@ router
   .get(protect, getShoppingcart)
   .post(protect, createShoppingCart);
 
+router.route('/:id').delete(protect, deleteShoppingcart);
+
 router
-  .route('/:id')
-  .post(protect, createCartItem)
-  .put(protect, authorize, updateShoppingcart)
-  .delete(protect, authorize, deleteShoppingcart); // Pass a cart item id to the delete request
+  .route('/cartitems')
+  .get(protect, getCartItems)
+  .post(protect, createCartItem);
+
+router
+  .route('/cartitems/:id')
+  .get(protect, getSingleCartItem)
+  .put(protect, updateCartItem)
+  .delete(protect, deleteCartItem);
 
 module.exports = router;
