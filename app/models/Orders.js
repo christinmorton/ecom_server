@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const colors = require('colors');
+const uuidv4 = require('uuid/v4');
 
 const OrderSchema = new mongoose.Schema({
   totalprice: {
@@ -7,6 +8,14 @@ const OrderSchema = new mongoose.Schema({
     default: 0,
     required: true,
   },
+  currency: {
+    type: String,
+    default: 'usd',
+  },
+  paymentIntentId: {
+    type: String,
+  },
+  idempotencyKey: String,
   status: {
     type: String,
     enum: ['pending', 'failed', 'return-requested', 'successful', 'saved'],
@@ -37,6 +46,14 @@ const OrderSchema = new mongoose.Schema({
     ref: 'Customer',
     required: true,
   },
+});
+
+OrderSchema.statics.createIdempotencyKey = function () {
+  this.idempotencyKey = uuidv4(); // V4 UUIDs
+};
+
+OrderSchema.post('save', function () {
+  this.constructor.createIdempotencyKey();
 });
 
 // Encrypt password using bcrypt
