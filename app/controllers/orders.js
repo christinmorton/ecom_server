@@ -15,12 +15,13 @@ exports.getAllOrders = asyncHandler(async (req, res, next) => {
   if (!customer) {
     return next(
       new ErrorResponse(
-        `Custoemr not found, please contact custoemer support`,
+        `Customer not found, please contact customer support`,
         500
       )
     );
   }
 
+  // Check mongodb for customer orders
   const orders = await Order.find({ customer: customer });
 
   if (!orders) {

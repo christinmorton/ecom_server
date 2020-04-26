@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const colors = require('colors');
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 
 const OrderSchema = new mongoose.Schema({
   totalprice: {
