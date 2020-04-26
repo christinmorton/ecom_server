@@ -13,10 +13,9 @@ dotenv.config({ path: './config/config.env' });
 
 connectDB();
 
-const PORT = process.env.PORT || 5000;
-const REDIS_PORT = process.env.REDIS_PORT || 6379;
+const cache = require('./app/utils/cache');
 
-// const client = redis.createClient(REDIS_PORT);
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 

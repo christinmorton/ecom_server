@@ -1,0 +1,239 @@
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+//   A poor implementation of redis caching
+// =============================================================================================
+
+// @desc        Get get all Orders for current user
+// @route       GET /api/v1/orders
+// @access      Private
+exports.getAllOrders = asyncHandler(async (req, res, next) => {
+  const customer = await Customer.findOne({ user: req.user.id });
+
+  if (!customer) {
+    return next(
+      new ErrorResponse(
+        `Custoemr not found, please contact custoemer support`,
+        500
+      )
+    );
+  }
+
+  const redis = require('redis');
+  const REDIS_PORT = process.env.REDIS_PORT || 6379;
+  const client = redis.createClient(REDIS_PORT);
+  const util = require('util');
+  client.get = util.promisify(client.get);
+
+  // Do we have any cached data in redis related to this query
+  const cachedOrders = await client.get(req.user.id);
+
+  // If yes, then respond to the request right away and return
+  if (cachedOrders) {
+    console.log('SERVING FROM CACHE'.blue);
+    return res.status(201).json({
+      success: true,
+      data: JSON.parse(cachedOrders),
+    });
+  }
+
+  // If no, we need to respond to request and update our cache
+  // to store the data.
+
+  // Check mongodb for customer orders
+  const orders = await Order.find({ customer: customer });
+
+  if (!orders) {
+    return next(
+      new ErrorResponse(`Orders not found for customer of ${req.user.id}`, 400)
+    );
+  }
+
+  console.log('SERVING FROM MONGODB'.blue);
+  res.status(201).json({
+    success: true,
+    data: orders,
+  });
+
+  // Cache orders with redis
+  client.set(req.user.id, JSON.stringify(orders));
+});
+
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+//   Psuedocode for better redis usage
+// =============================================================================================
+
+// Overwrite the mongoose exec query function to check
+// if our queries have been cached in redis
+query.exec = function () {
+  // To check to see if this query has already been executed
+  // and if it has return the result right away
+  client.get('query key')
+  if (result) {
+     return result;
+  }
+
+  // Otherwise issue the query as *normal*
+  const result = runTheOriginalExecFunction();
+
+  // Then save that value in redis server.
+  client.set('query key', result);
+ 
+  return result;
+}
+
+// ---------------------------------------------------------------------------------------------
+
+Redis has some built-in cache funcitons for caceh management. In our algorithm it would be 
+better if we used the functions that allow us to expire cached objects after some time. So 
+when we set a key value pair in redis we can also pass some addition parameters like 'EX' 
+which means expire and a time value in seconds. The function should look like this:
+client.set('key', 'value', 'EX', 5);
+
+Cache expiration is a good tool but we need to be able to do this in bulk. Meaning for every
+post or product or order or etc, we need redis to be able to create a expiration for all of
+those key value pairs and be time efficient for the user call the resources from our server.
+
+queries have a function on them called getOptions(); So query.getOptions(); would return a 
+object that represents all the options on a query like this:
+{ find: {occupation: 'host}, where: [{'name.last': 'Ghost}]}...etc 
+We can stringify the options result. This stringify-ed options object could then becomee 
+a query key that allows us to store the query in redis. So the query itself is unique. If 
+you change the query you change the options. Also the data respresented in the result will
+be consistent. So if you change the query the data will change but you can expect that same
+data to be given for the changed query which is a new query and new result. Unique and consistent
+data stored in redis accross queries.
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// Moving on to the Generating Robust cache Keys for redis and code reuse.
+// ---------------------------------------------------------------------------------------------
+
+We want query keys that are consistent when the same query is executed but unique between 
+executions of different queries.
+
+1. Take the object of the query and combine it with the collection name.
+2. take the entire object you just created and turn it into a string. JSON. stringify()
+3. Use the string object as a key to be used inside of redis.
+
+Remember you cannot modify this.getQuery() because that change the actual query called. this
+will change the query result we want to store in redis so do not do this.
+
+Instead copy the this.getQuery() function and add the collection name to the new object.
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// Which leads to this v
+// ---------------------------------------------------------------------------------------------
+
+const mongoose = require('mongoose');
+const redis = require('redis');
+const util = require('util');
+
+const REDIS_PORT = 'redis://localhost:6379';
+
+const client = redis.createClient(REDIS_PORT);
+
+client.get = util.promisify(client.get);
+
+const exec = mongoose.Query.prototype.exec;
+
+mongoose.Query.prototype.exec = async function () {
+  const key = JSON.stringify(
+    Object.assign({}, this.getQuery(), {
+      collection: this.mongooseCollection.name,
+    })
+  );
+  // Do we have any cached data in redis related to this query
+  const cacheValue = await client.get(key);
+
+  // If yes, then respond to the request right away and return
+  if (cacheValue) {
+    const document = JSON.parse(cacheValue);
+    return Array.isArray(document)
+      ? document.map((doc) => new this.model(doc))
+      : new this.model(document);
+  }
+  // Cache the mongoose query result with redis
+  const result = await exec.apply(this, arguments);
+  const value = JSON.stringify(result);
+  client.set(key, value);
+  return result;
+};
+
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// How do we make the cache feature optional? It is wasteful to cache every mongo query.
+// ---------------------------------------------------------------------------------------------
+
+So appranently this was really easy. I just needed to create a new mongoose function that toggles
+a true/false value and then an if statement in my exec override. Then I just use the .cache() 
+function on my mongoose querys like I would use any other chain call on the mongoose query. The
+actual code looks like this:
+
+const mongoose = require('mongoose');
+const redis = require('redis');
+const util = require('util');
+
+const REDIS_PORT = 'redis://localhost:6379';
+
+const client = redis.createClient(REDIS_PORT);
+
+client.get = util.promisify(client.get);
+
+const exec = mongoose.Query.prototype.exec;
+
+mongoose.Query.prototype.cache = function () {
+  this.useCache = true;
+  return this;
+};
+
+mongoose.Query.prototype.exec = async function () {
+  if (!this.useCache) {
+    return exec.apply(this, arguments);
+  }
+
+  const key = JSON.stringify(
+    Object.assign({}, this.getQuery(), {
+      collection: this.mongooseCollection.name,
+    })
+  );
+  // Do we have any cached data in redis related to this query
+  const cacheValue = await client.get(key);
+
+  // If yes, then respond to the request right away and return
+  if (cacheValue) {
+    const document = JSON.parse(cacheValue);
+    return Array.isArray(document)
+      ? document.map((doc) => new this.model(doc))
+      : new this.model(document);
+  }
+  // Cache the mongoose query result with redis
+  const result = await exec.apply(this, arguments);
+  const value = JSON.stringify(result);
+  client.set(key, value);
+  return result;
+};
+
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// Now the focus is on expiring cached values that are not being used.
+// ---------------------------------------------------------------------------------------------
+ This was super easy. Just use the 'EX' and time on the client.set() function.
+
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// Create a Nested cache for each user's queries.
+// ---------------------------------------------------------------------------------------------
+TODO:
+
+// ---------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------
+// Automatic Cache clearing with express middleware.
+// ---------------------------------------------------------------------------------------------
+
+TODO:

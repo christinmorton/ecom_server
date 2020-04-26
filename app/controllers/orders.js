@@ -22,7 +22,9 @@ exports.getAllOrders = asyncHandler(async (req, res, next) => {
   }
 
   // Check mongodb for customer orders
-  const orders = await Order.find({ customer: customer });
+  const orders = await Order.find({ customer: customer }).cache({
+    key: req.user.id,
+  });
 
   if (!orders) {
     return next(
