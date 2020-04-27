@@ -48,13 +48,13 @@ const OrderSchema = new mongoose.Schema({
   },
 });
 
-OrderSchema.statics.createIdempotencyKey = function () {
-  this.idempotencyKey = uuidv4(); // V4 UUIDs
+OrderSchema.methods.setPaymentIntentId = function (id) {
+  this.paymentIntentId = id; // V4 UUIDs
 };
 
-OrderSchema.post('save', function () {
-  this.constructor.createIdempotencyKey();
-});
+OrderSchema.methods.createIdempotencyKey = function () {
+  this.idempotencyKey = uuidv4(); // V4 UUIDs
+};
 
 // Encrypt password using bcrypt
 OrderSchema.pre('save', async function (next) {

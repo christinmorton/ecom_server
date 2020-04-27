@@ -5,6 +5,7 @@ const {
   createOrder,
   updateOrder,
   deleteOrder,
+  createIntent,
 } = require('../../controllers/orders');
 
 // const advancedResults = require('../../middleware/advancedResults');
@@ -24,5 +25,7 @@ router
   .get(protect, getSingleOrder)
   .put(protect, updateOrder)
   .delete(protect, deleteOrder);
+
+router.route('/intent/:id').post(protect, createIntent);
 
 module.exports = router;

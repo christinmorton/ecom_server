@@ -14,6 +14,6 @@ const router = express.Router();
 
 router.route('/stripe-key').get(pubKey);
 
-router.route('/purchase/:orderId').post(protect, makePayment);
+// router.route('/purchase/:orderId').post(protect, makePayment);
 
 module.exports = router;

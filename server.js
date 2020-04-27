@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const fileupload = require('express-fileupload');
 const connectDB = require('./config/dbMongo');
 const errorHandler = require('./app/middleware/error');
@@ -49,6 +50,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // File upload middleware
 app.use(fileupload());
+
+// Enable CORS
+app.use(cors());
 
 // app.get('/', (req, res) => {
 //   res.render('index');
